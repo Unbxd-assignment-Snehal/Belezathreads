@@ -22,8 +22,13 @@ const CREATE_CATEGORY_TABLE = `
 CREATE TABLE IF NOT EXISTS CATEGORY (
    categoryID SERIAL PRIMARY KEY NOT NULL,
    category VARCHAR(255),
-   parentCategory VARCHAR(255)
+   parentCategory VARCHAR(255),
+   UNIQUE(category, parentCategory)
+
 );`
+
+
+
 
 const SELECT_ALL_PRODUCTS = `
 SELECT P.productID, P.title, P.price, P.description, P.categoryID, I.imagePath
