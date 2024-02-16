@@ -1,9 +1,10 @@
 package main
-
 import (
 	"database/sql"
 	"fmt"
-
+	"net/http"
+	"example.com/belezathreads/backend/model"
+	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 )
 
@@ -44,9 +45,9 @@ func main() {
 		fmt.Println("Error creating image table:", err)
 		return
 	}
-	CheckError(err)
 	fmt.Println("Table creation successful or already exists.")
 
+	
 	// insertSample1 := `insert into CATEGORY ("category", "parentcategory") values('New Arrivalss', 1)`
 	// _, err = db.Exec(insertSample1)
 	// CheckError(err)
@@ -59,13 +60,23 @@ func main() {
 	// _, err = db.Exec(insertSample3, "123", "https://images.express.com/is/image/expressfashion/0020_01705319_0001?cache=on&wid=361&fmt=jpeg&qlt=75,1&resmode=sharp2&op_usm=1,1,5,0&defaultImage=Photo-Coming-Soon", "123")
 	// CheckError(err)
 
-	ingestData(db)
+	router := mux.NewRouter()
+
+	router.HandleFunc("/ingestion", func(w http.ResponseWriter, r *http.Request) {
+		ingestData(db)
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Data ingestion successful"))
+	}).Methods("POST")
 
 
+	router.HandleFunc("/product/{productID}", model.GetProductHandler(db)).Methods("GET")
+	router.HandleFunc("/products/{cat1}", model.FilterCategoryHandler(db)).Methods("GET")
+	router.HandleFunc("/products/{cat1}/{cat2}", model.FilterCategoryHandler2(db)).Methods("GET")
+
+	port := ":8080"
+	fmt.Printf("Server is running on http://localhost%s\n", port)
+	http.ListenAndServe(port, router)
 }
 
-func CheckError(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
+
+

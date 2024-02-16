@@ -22,19 +22,19 @@ const CREATE_CATEGORY_TABLE = `
 CREATE TABLE IF NOT EXISTS CATEGORY (
    categoryID SERIAL PRIMARY KEY NOT NULL,
    category VARCHAR(255),
-   parentCategory VARCHAR(255),
+   parentCategory INT,
    UNIQUE(category, parentCategory)
 
 );`
 
 
+const GET_CATEGORY_ID = `SELECT `
 
+const GET_PRODUCT = `
+SELECT P.productID, P.title, P.price, P.description, P.categoryID, I.imagePath 
+FROM PRODUCT P JOIN IMAGE I ON P.productid = I.productid 
+WHERE P.productid = $1;`
 
 const SELECT_ALL_PRODUCTS = `
 SELECT P.productID, P.title, P.price, P.description, P.categoryID, I.imagePath
 FROM PRODUCT P JOIN IMAGE I ON P.productID = I.productID;`
-
-const GET_PRODUCT = `
-
-SELECT P.productID, P.title, P.price, P.description, P.categoryID, I.imagePath
-FROM PRODUCT P JOIN IMAGE I ON P.productID = I.productID WHERE P.productID = I.productID;`
