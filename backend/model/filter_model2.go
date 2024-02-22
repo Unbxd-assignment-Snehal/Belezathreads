@@ -1,4 +1,3 @@
-// filter_model2.go
 package model
 
 import (
@@ -7,34 +6,25 @@ import (
 	"fmt"
 	"net/http"
 	"github.com/gorilla/mux"
-	"strconv"
 )
 
-
-const GET_CAT1_CAT2_PRODUCTS = "SELECT P.productID, P.title, P.price, P.description, P.categoryID, C.category, C.parentcategory FROM PRODUCT P JOIN CATEGORY C ON P.categoryid = C.categoryid WHERE C.categoryid = $1 AND C.parentcategory = $2"
-
-// FilterCategoryHandler2 handles category filtering based on two parameters (cat1 and cat2)
+const GET_CAT1_CAT2_PRODUCTS = `
+SELECT P.productID, P.title, P.price, P.description, P.categoryID, C.category, C.parentcategory, I.imagePath
+FROM PRODUCT P
+JOIN CATEGORY C ON P.categoryid = C.categoryid
+LEFT JOIN IMAGE I ON P.productID = I.productID
+WHERE (C.category = $2 AND C.parentcategory = (
+    SELECT categoryid FROM CATEGORY WHERE category = $1
+)) ;
+`;
 func FilterCategoryHandler2(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		params := mux.Vars(r)
-		cat1 := params["cat1"]
-		cat2 := params["cat2"]
 
-		categoryID, err := strconv.Atoi(cat1)
-		if err != nil {
-			fmt.Println("Error converting cat1 to integer:", err)
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
+		vars := mux.Vars(r)
+		cat1 := vars["cat1"]
+		cat2 := vars["cat2"]
 
-		parentCategoryID, err := strconv.Atoi(cat2)
-		if err != nil {
-			fmt.Println("Error converting cat2 to integer:", err)
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		rows, err := db.Query(GET_CAT1_CAT2_PRODUCTS, categoryID, parentCategoryID)
+		rows, err := db.Query(GET_CAT1_CAT2_PRODUCTS, cat1, cat2)
 		if err != nil {
 			fmt.Println("Error querying database:", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -46,15 +36,27 @@ func FilterCategoryHandler2(db *sql.DB) http.HandlerFunc {
 
 		for rows.Next() {
 			var product Product
-			err := rows.Scan(&product.ProductID, &product.Title, &product.Price, &product.Description, &product.CategoryID, &product.Category, &product.ParentCategory)
+			err := rows.Scan(&product.ProductID, &product.Title, &product.Price, &product.Description, &product.CategoryID, &product.Category, &product.ParentCategory, &product.Imagepath)
 			if err != nil {
-				fmt.Println("Error scanning row:", err)
-				w.WriteHeader(http.StatusInternalServerError)
+				fmt.Println(http.StatusInternalServerError)
 				return
 			}
 			products = append(products, product)
 		}
+		if len(products) == 0 {
+			errorResponse := map[string]string{"error": "Product not found"}
+			response, err := json.Marshal(errorResponse)
+			if err != nil {
+				fmt.Println("Error marshaling JSON:", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
 
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+			w.Write(response)
+			return
+		}
 		response, err := json.Marshal(products)
 		if err != nil {
 			fmt.Println("Error marshaling JSON:", err)

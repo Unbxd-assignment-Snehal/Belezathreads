@@ -53,33 +53,34 @@ func ingestData(db *sql.DB) {
 			category.CatLevel2Name = " "
 		}
 		
-var parentCategoryID int
-err := db.QueryRow("SELECT categoryid FROM CATEGORY WHERE category = $1", category.CatLevel1Name).Scan(&parentCategoryID)
+        var parentCategoryID int
+        err := db.QueryRow("SELECT categoryid FROM CATEGORY WHERE category = $1", category.CatLevel1Name).Scan(&parentCategoryID)
 
-if err == sql.ErrNoRows {
-    _, err := db.Exec("INSERT INTO CATEGORY (category, parentCategory) VALUES ($1, $2) ON CONFLICT DO NOTHING", category.CatLevel1Name, nil)
-    if err != nil {
-        fmt.Println("Error inserting parent category:", err)
-        return
+        if err == sql.ErrNoRows {
+            _, err := db.Exec("INSERT INTO CATEGORY (category, parentCategory) VALUES ($1, $2) ON CONFLICT DO NOTHING", category.CatLevel1Name, nil)
+            if err != nil {
+                fmt.Println("Error inserting parent category:", err)
+                return
+            }
+
+            err = db.QueryRow("SELECT categoryid FROM CATEGORY WHERE category = $1", category.CatLevel1Name).Scan(&parentCategoryID)
+            if err != nil {
+                fmt.Println("Error retrieving categoryid of the parent category:", err)
+                return
+            }
+        } else if err != nil {
+            fmt.Println("Error checking if parent category exists:", err)
+            return
+        }
+        if category.CatLevel2Name != " " {
+
+        _, err = db.Exec("INSERT INTO CATEGORY (category, parentCategory) VALUES ($1, $2) ON CONFLICT DO NOTHING", category.CatLevel2Name, parentCategoryID)
+        if err != nil {
+            fmt.Println("Error inserting child category:", err)
+            return
+        }
+
     }
-
-    err = db.QueryRow("SELECT categoryid FROM CATEGORY WHERE category = $1", category.CatLevel1Name).Scan(&parentCategoryID)
-    if err != nil {
-        fmt.Println("Error retrieving categoryid of the parent category:", err)
-        return
-    }
-} else if err != nil {
-    fmt.Println("Error checking if parent category exists:", err)
-    return
-}
-
-_, err = db.Exec("INSERT INTO CATEGORY (category, parentCategory) VALUES ($1, $2) ON CONFLICT DO NOTHING", category.CatLevel2Name, parentCategoryID)
-if err != nil {
-    fmt.Println("Error inserting child category:", err)
-    return
-}
-
-
 		}
 
     for _, item := range data {
@@ -110,9 +111,9 @@ if err != nil {
 				return
 			}
 		} else {
-			err := db.QueryRow("SELECT categoryid FROM CATEGORY WHERE  category = ' ' AND parentCategory = $1", parentCategoryID).Scan(&categoryID)
+			err := db.QueryRow("SELECT categoryid FROM CATEGORY WHERE  category = $1", item["catlevel1Name"]).Scan(&categoryID)
 			if err == sql.ErrNoRows {
-				fmt.Println("Category not found in CATEGORY table")
+                fmt.Println("Category not found in CATEGORY table", err.Error())
 				return
 			} else if err != nil {
 				fmt.Println("Error retrieving categoryID from CATEGORY table:", err)

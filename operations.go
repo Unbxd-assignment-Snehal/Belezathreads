@@ -27,8 +27,7 @@ CREATE TABLE IF NOT EXISTS CATEGORY (
 
 );`
 
-
-const GET_CATEGORY_ID = `SELECT `
+// const GET_CATEGORY_ID = `SELECT `
 
 const GET_PRODUCT = `
 SELECT P.productID, P.title, P.price, P.description, P.categoryID, I.imagePath 
@@ -38,3 +37,5 @@ WHERE P.productid = $1;`
 const SELECT_ALL_PRODUCTS = `
 SELECT P.productID, P.title, P.price, P.description, P.categoryID, I.imagePath
 FROM PRODUCT P JOIN IMAGE I ON P.productID = I.productID;`
+
+const GET_CAT1_CAT2_PRODUCTS = "SELECT P.productID, P.title, P.price, P.description, P.categoryID, C.category, C.parentcategory FROM PRODUCT P JOIN CATEGORY C ON P.categoryid = C.categoryid WHERE C.categoryid = $1 AND C.parentcategory = $2"
