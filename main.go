@@ -3,7 +3,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
-	"example.com/belezathreads/backend/src/model"
+	"example.com/belezathreads/backend/src/controller"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 )
@@ -47,9 +47,9 @@ func main() {
 	}).Methods("POST")
 
 
-	router.HandleFunc("/product/{productID}", model.GetProductHandler(db)).Methods("GET")
-	router.HandleFunc("/products/{cat1}", model.FilterCategoryHandler(db)).Methods("GET")
-	router.HandleFunc("/products/{cat1}/{cat2}", model.FilterCategoryHandler2(db)).Methods("GET")
+	router.HandleFunc("/product/{productID}", controller.GetProductController(db)).Methods("GET")
+	router.HandleFunc("/products/{cat1}", controller.FilterCategoryController(db)).Methods("GET")
+	router.HandleFunc("/products/{cat1}/{cat2}", controller.FilterCategoryController2(db)).Methods("GET")
 
 	port := ":8080"
 	fmt.Printf("Server is running on http://localhost%s\n", port)
