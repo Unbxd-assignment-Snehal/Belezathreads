@@ -3,7 +3,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
-	"example.com/belezathreads/backend/model"
+	"example.com/belezathreads/backend/src/model"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 )
