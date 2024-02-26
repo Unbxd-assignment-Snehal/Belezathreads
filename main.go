@@ -50,7 +50,7 @@ func main() {
 	router.HandleFunc("/product/{productID}", controller.GetProductController(db)).Methods("GET")
 	router.HandleFunc("/products/{cat1}", controller.FilterCategoryController(db)).Methods("GET")
 	router.HandleFunc("/products/{cat1}/{cat2}", controller.FilterCategoryController2(db)).Methods("GET")
-
+	router.HandleFunc("/search", controller.SearchUnbxdController).Methods("GET")
 	port := ":8080"
 	fmt.Printf("Server is running on http://localhost%s\n", port)
 	http.ListenAndServe(port, router)

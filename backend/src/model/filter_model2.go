@@ -29,10 +29,6 @@ func FilterCategoryModel2(db *sql.DB, cat1 string, cat2 string, pageNo string, s
 		return nil, err
 	}
 
-	if sort != "asc" && sort != "desc" {
-		sort = "asc"
-	}
-
 	pageSize := 10
 	offset := (pageNoInt - 1) * pageSize
 
