@@ -33,9 +33,9 @@ func GetProductModel(db *sql.DB, requestedProductID string) (ProductResponse, er
 	)
 
 	if err == sql.ErrNoRows {
-		return response, fmt.Errorf("Error: Product not found")
+		return response, fmt.Errorf("Product not found")
 	} else if err != nil {
-		return response, fmt.Errorf("Error: %v", err)
+		return response, fmt.Errorf("error: %v", err)
 	}
 
 	return response, nil
