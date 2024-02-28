@@ -4,7 +4,9 @@ package model
 import (
 	"database/sql"
 	"fmt"
+	"example.com/belezathreads/backend/src/services"
 	"strconv"
+	
 )
 
 type Product struct {
@@ -43,7 +45,7 @@ func FilterCategoryModel(db *sql.DB, cat1 string, pageNo string, sort string) ([
 	offset := (pageNoInt - 1) * pageSize
 
 	query := fmt.Sprintf(GET_CAT1_PRODUCTS_PAGINATED, sort)
-	rows, err := db.Query(query, cat1, pageSize, offset)
+	rows, err := services.QueryDB(db, query, cat1, pageSize, offset)
 	if err != nil {
 		return nil, err
 	}

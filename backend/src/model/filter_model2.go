@@ -1,10 +1,11 @@
-
 package model
 
 import (
 	"database/sql"
 	"fmt"
 	"strconv"
+
+	"example.com/belezathreads/backend/src/services"
 )
 
 const GET_CAT1_CAT2_PRODUCTS_PAGINATED = `
@@ -33,7 +34,7 @@ func FilterCategoryModel2(db *sql.DB, cat1 string, cat2 string, pageNo string, s
 	offset := (pageNoInt - 1) * pageSize
 
 	query := fmt.Sprintf(GET_CAT1_CAT2_PRODUCTS_PAGINATED, sort)
-	rows, err := db.Query(query, cat1, cat2, pageSize, offset)
+	rows, err := services.QueryDB(db, query, cat1, cat2, pageSize, offset)
 	if err != nil {
 		return nil, err
 	}

@@ -1,37 +1,40 @@
 package main
 import (
-	"database/sql"
 	"fmt"
 	"net/http"
 	"example.com/belezathreads/backend/src/controller"
+	"example.com/belezathreads/backend/src/services"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "postgres"
-	dbname   = "apparels"
-)
-
 func main() {
-	psqlconn := fmt.Sprintf("host = %s port = %d user = %s password = %s dbname = %s sslmode=disable", host, port, user, password, dbname)
-	db, err := sql.Open("postgres", psqlconn)
+	// Database configuration
+	dbConfig := services.DBConfig{
+		Host:     "localhost",
+		Port:     5432,
+		User:     "postgres",
+		Password: "postgres",
+		DBName:   "apparels",
+	}
+
+	// Create a new database connection
+	db, err := services.NewDBConnection(dbConfig)
 	if err != nil {
-		fmt.Println("Error opening database connection:", err)
+		fmt.Println("Error connecting to the database:", err)
 		return
 	}
-	err = db.Ping()
+	defer services.CloseDB(db)
+
+	// Example query
+	query := "SELECT * FROM product WHERE productid = $1"
+	rows, err := services.QueryDB(db, query, "00768912")
 	if err != nil {
-		fmt.Println("Error pinging database:", err)
+		fmt.Println("Error executing query:", err)
 		return
 	}
-	defer db.Close()
-	fmt.Println("Database connection successful!")
-	
-	
+	defer rows.Close()
+
 	
 	router := mux.NewRouter()
 	router.HandleFunc("/ingestion", func(w http.ResponseWriter, r *http.Request) {

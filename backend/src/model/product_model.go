@@ -4,6 +4,7 @@ package model
 import (
 	"database/sql"
 	"fmt"
+	"example.com/belezathreads/backend/src/services"
 )
 
 const GET_PRODUCT = `
@@ -27,7 +28,7 @@ type ErrorResponse struct {
 func GetProductModel(db *sql.DB, requestedProductID string) (ProductResponse, error) {
 	var response ProductResponse
 
-	err := db.QueryRow(GET_PRODUCT, requestedProductID).Scan(
+	err := services.QueryRowDB(db, GET_PRODUCT, requestedProductID).Scan(
 		&response.ProductID, &response.Title, &response.Price,
 		&response.Description, &response.CategoryID, &response.ImagePath,
 	)
