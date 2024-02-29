@@ -3,7 +3,9 @@ package controller
 import (
 	"encoding/json"
 	"net/http"
+
 	"example.com/belezathreads/backend/src/model"
+	"example.com/belezathreads/backend/src/services"
 )
 
 func SearchUnbxdController(w http.ResponseWriter, r *http.Request) {
@@ -12,11 +14,11 @@ func SearchUnbxdController(w http.ResponseWriter, r *http.Request) {
 	sort := r.URL.Query().Get("sort")
 	fields := "title,price,description,imageUrl"
 
-	unbxdResponse, err := model.SearchUnbxd(q, pageno, sort, fields)
+	unbxdResponse, err := model.BuildUnbxdURL(q, pageno, sort, fields)
 	if err != nil {
-		errorResponse := model.UnbxdResponse{
+		errorResponse := services.UnbxdResponse{
 			Success: "",
-			Response: model.UnbxdResponseData{
+			Response: services.UnbxdResponseData{
 				NumberOfProducts: 0,
 				Products:         nil,
 			},
@@ -30,9 +32,9 @@ func SearchUnbxdController(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	successResponse := model.UnbxdResponse{
+	successResponse := services.UnbxdResponse{
 		Success: "ok",
-		Response: model.UnbxdResponseData{
+		Response: services.UnbxdResponseData{
 			NumberOfProducts: len(unbxdResponse.Response.Products),
 			Products:         unbxdResponse.Response.Products,
 		},

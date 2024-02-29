@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-	// Database configuration
 	dbConfig := services.DBConfig{
 		Host:     "localhost",
 		Port:     5432,
@@ -18,22 +17,12 @@ func main() {
 		DBName:   "apparels",
 	}
 
-	// Create a new database connection
 	db, err := services.NewDBConnection(dbConfig)
 	if err != nil {
 		fmt.Println("Error connecting to the database:", err)
 		return
 	}
 	defer services.CloseDB(db)
-
-	// Example query
-	query := "SELECT * FROM product WHERE productid = $1"
-	rows, err := services.QueryDB(db, query, "00768912")
-	if err != nil {
-		fmt.Println("Error executing query:", err)
-		return
-	}
-	defer rows.Close()
 
 	
 	router := mux.NewRouter()
